@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WCAG Checklist</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1em;
+            text-align: center;
+        }
+        .container {
+            padding: 2em;
+        }
+        .filters {
+            margin-bottom: 2em;
+        }
+        .filters label {
+            margin-right: 1em;
+        }
+        .filters select {
+            margin-right: 1em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 0.5em;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .filter-container {
+            margin-bottom: 1em;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>WCAG Checklist</h1>
+    </header>
+    <div class="container">
+        <section class="filters">
+            <div>
+                <h3>WCAG Principle</h3>
+                <label><input type="checkbox" id="principlePerceivable" value="Perceivable" /> Perceivable</label>
+                <label><input type="checkbox" id="principleOperable" value="Operable" /> Operable</label>
+                <label><input type="checkbox" id="principleUnderstandable" value="Understandable" /> Understandable</label>
+                <label><input type="checkbox" id="principleRobust" value="Robust" /> Robust</label>
+            </div>
+            <div>
+                <h3>Conformance Level</h3>
+                <label><input type="checkbox" id="conformanceA" value="A" /> Level A</label>
+                <label><input type="checkbox" id="conformanceAA" value="AA" /> Level AA</label>
+                <label><input type="checkbox" id="conformanceAAA" value="AAA" /> Level AAA</label>
+            </div>
+            <div>
+                <h3>User Type</h3>
+                <label><input type="checkbox" id="userTypeUiux" value="uiux" /> UI/UX Designer</label>
+                <label><input type="checkbox" id="userTypeDev" value="dev" /> Developer</label>
+                <label><input type="checkbox" id="userTypeQa" value="qa" /> Accessibility Tester</label>
+            </div>
+        </section>
+
+        <table id="checklistTable">
+            <thead>
+                <tr>
+                    <th>WCAG Principle</th>
+                    <th>WCAG Success Criteria</th>
+                    <th>Conformance Level</th>
+                    <th>WCAG Version</th>
+                    <th>User Type</th>
+                    <th>Criteria</th>
+                    <th>Reference</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data rows will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('WCAG Checklist.xlsx')
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                    populateTable(jsonData);
+                });
+
+            function populateTable(data) {
+                const tableBody = document.getElementById('checklistTable').getElementsByTagName('tbody')[0];
+                data.forEach(row => {
+                    const newRow = tableBody.insertRow();
+                    Object.values(row).forEach(cellData => {
+                        const newCell = newRow.insertCell();
+                        newCell.textContent = cellData;
+                    });
+                });
+            }
+        });
+    </script>

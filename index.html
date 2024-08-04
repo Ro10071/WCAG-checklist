@@ -93,8 +93,9 @@
             </tbody>
         </table>
     </div>
+    <script>
+        let jsonData = [];
 
-<script>
         document.addEventListener('DOMContentLoaded', function() {
             fetch('WCAG Checklist.xlsx')
                 .then(response => response.arrayBuffer())
@@ -102,19 +103,40 @@
                     const workbook = XLSX.read(data, { type: 'array' });
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                    jsonData = XLSX.utils.sheet_to_json(worksheet);
                     populateTable(jsonData);
                 });
 
-            function populateTable(data) {
-                const tableBody = document.getElementById('checklistTable').getElementsByTagName('tbody')[0];
-                data.forEach(row => {
-                    const newRow = tableBody.insertRow();
-                    Object.values(row).forEach(cellData => {
-                        const newCell = newRow.insertCell();
-                        newCell.textContent = cellData;
-                    });
-                });
-            }
+            document.querySelectorAll('.filter').forEach(filter => {
+                filter.addEventListener('change', applyFilters);
+            });
         });
+
+        function populateTable(data) {
+            const tableBody = document.getElementById('checklistTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+            data.forEach(row => {
+                const newRow = tableBody.insertRow();
+                Object.values(row).forEach(cellData => {
+                    const newCell = newRow.insertCell();
+                    newCell.textContent = cellData;
+                });
+            });
+        }
+
+        function applyFilters() {
+            const selectedPrinciples = Array.from(document.querySelectorAll('input[data-type="principle"]:checked')).map(el => el.value);
+            const selectedConformance = Array.from(document.querySelectorAll('input[data-type="conformance"]:checked')).map(el => el.value);
+            const selectedUsers = Array.from(document.querySelectorAll('input[data-type="user"]:checked')).map(el => el.value);
+
+            const filteredData = jsonData.filter(row => {
+                const matchesPrinciple = !selectedPrinciples.length || selectedPrinciples.includes(row['WCAG Principle']);
+                const matchesConformance = !selectedConformance.length || selectedConformance.includes(row['Conformance Level']);
+                const matchesUser = !selectedUsers.length || selectedUsers.includes(row['User Type']);
+
+                return matchesPrinciple && matchesConformance && matchesUser;
+            });
+
+            populateTable(filteredData);
+        }
     </script>
